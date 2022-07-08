@@ -1,4 +1,4 @@
-export declare class LiqAPI {
+export declare class LiquidityAPI {
     private webInstance;
     private contractInstance;
     constructor(_webInstance: any);

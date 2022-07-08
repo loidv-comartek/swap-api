@@ -1,6 +1,6 @@
 import abiPair from "./abi/pair.json";
 
-export class LiqAPI {
+export class LiquidityAPI {
   private webInstance: any;
   private contractInstance: Record<string, any> = {};
   constructor(_webInstance: any) {

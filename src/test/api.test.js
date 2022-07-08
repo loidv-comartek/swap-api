@@ -1,4 +1,4 @@
-const { LiqAPI } = require("../../lib");
+const { LiquidityAPI } = require("../../lib");
 const WelWeb = require("welweb");
 
 const factoryAddress = "WG9XB6uxeQNxn9DXCh7HpFvKcj7mBrY17n";
@@ -10,15 +10,15 @@ describe("api.ts", () => {
 
   let addressPart;
   webInstance.setAddress("WDHWCZjBCNcY6XN64S43DBMS3pQ5jEtoH8");
-  const liqApi = new LiqAPI(webInstance);
+  const LiquidityAPI = new LiquidityAPI(webInstance);
 
   test("get list pair", async () => {
-    addressPart = await liqApi.getListPair(factoryAddress);
+    addressPart = await LiquidityAPI.getListPair(factoryAddress);
     require();
   });
 
   test("get pair info", async () => {
-    const pair = await liqApi.getPairByAddress(addressPart[1]);
+    const pair = await LiquidityAPI.getPairByAddress(addressPart[1]);
     console.log(pair.reserves.reserve0._hex);
   });
 });
