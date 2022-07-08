@@ -1,6 +1,6 @@
 {
   "name": "swap-lp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -17,11 +17,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "file-saver": "^2.0.5",
+    "fs": "^0.0.1-security",
     "jest": "^28.1.2",
     "jest-cli": "^28.1.2",
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "bignumber.js": "^9.0.2",
     "welweb": "0.0.12"
   }
 }

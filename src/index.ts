@@ -1,4 +1,6 @@
 import abiPair from "./abi/pair.json";
+import BigNumber from "bignumber.js";
+import { getOutputAmount } from "./trade";
 
 export class LiquidityAPI {
   private webInstance: any;
@@ -56,17 +58,33 @@ export class LiquidityAPI {
       kLastApi,
     ]);
 
+    const [token0Info, token1Info] = await Promise.all([
+      this.tokenInfo(this.webInstance.address.fromHex(token0)),
+      this.tokenInfo(this.webInstance.address.fromHex(token1)),
+    ]);
+
+    const reserve0 = this.toDecimal(reserves._reserve0);
+    const reserve1 = this.toDecimal(reserves._reserve1);
+    const price0CumulativeLastNumber = this.toDecimal(price0CumulativeLast);
+    const price1CumulativeLastNumber = this.toDecimal(price1CumulativeLast);
+    const price = this.getPrice(
+      reserve0,
+      reserve1,
+      token0Info.decimals,
+      token1Info.decimals
+    );
     return {
-      token0: this.webInstance.address.fromHex(token0),
-      token1: this.webInstance.address.fromHex(token1),
+      token0: token0Info,
+      token1: token1Info,
       reserves: {
-        reserve0: reserves._reserve0,
-        reserve1: reserves._reserve1,
+        reserve0,
+        reserve1,
         blockTimestampLast: reserves._blockTimestampLast,
       },
-      price0CumulativeLast,
-      price1CumulativeLast,
-      kLast,
+      price,
+      price0CumulativeLast: price0CumulativeLastNumber,
+      price1CumulativeLast: price1CumulativeLastNumber,
+      kLast: this.toDecimal(kLast),
     };
   }
 
@@ -77,5 +95,49 @@ export class LiquidityAPI {
         : await this.webInstance.contract().at(address);
     }
     return this.contractInstance[address];
+  }
+
+  async tokenInfo(address: string) {
+    const token = await this.getSmartContract(address);
+    const [name, totalSupply, decimals, symbol] = await Promise.all([
+      token.name().call(),
+      this.totalSupply(address),
+      token.decimals().call(),
+      token.symbol().call(),
+    ]);
+    return {
+      name,
+      symbol,
+      totalSupply,
+      decimals,
+      address,
+    };
+  }
+
+  async totalSupply(address: any) {
+    try {
+      const token = await this.getSmartContract(address);
+      const totalSupply = await token.totalSupply().call();
+      return totalSupply;
+    } catch (error) {
+      return "";
+    }
+  }
+
+  toDecimal(value: any) {
+    const number = new BigNumber(value._hex || value);
+    return number.toString(10);
+  }
+
+  getPrice(r0: string, r1: string, d0: number, d1: number) {
+    const { value } = getOutputAmount(
+      {
+        r0,
+        r1,
+      },
+      1
+    );
+    const kd = Number(`10e${d0}`) / Number(`10e${d1}`);
+    return new BigNumber(1).dividedBy(value.times(kd).toString(10));
   }
 }
