@@ -1,4 +1,3 @@
-import BigNumber from "bignumber.js";
 export declare class LiquidityAPI {
     private webInstance;
     private contractInstance;
@@ -25,7 +24,10 @@ export declare class LiquidityAPI {
             reserve1: string;
             blockTimestampLast: any;
         };
-        price: BigNumber;
+        price: {
+            price0: string;
+            price1: string;
+        };
         price0CumulativeLast: string;
         price1CumulativeLast: string;
         kLast: string;
@@ -39,6 +41,10 @@ export declare class LiquidityAPI {
         address: string;
     }>;
     totalSupply(address: any): Promise<any>;
+    private toTokenNumber;
     toDecimal(value: any): string;
-    getPrice(r0: string, r1: string, d0: number, d1: number): BigNumber;
+    getPrice(r0: string, r1: string, d0: number, d1: number): {
+        price0: string;
+        price1: string;
+    };
 }

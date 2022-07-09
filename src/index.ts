@@ -63,16 +63,28 @@ export class LiquidityAPI {
       this.tokenInfo(this.webInstance.address.fromHex(token1)),
     ]);
 
-    const reserve0 = this.toDecimal(reserves._reserve0);
-    const reserve1 = this.toDecimal(reserves._reserve1);
+    const reserve0 = this.toTokenNumber(
+      reserves._reserve0,
+      token0Info.decimals
+    );
+    const reserve1 = this.toTokenNumber(
+      reserves._reserve1,
+      token1Info.decimals
+    );
     const price0CumulativeLastNumber = this.toDecimal(price0CumulativeLast);
     const price1CumulativeLastNumber = this.toDecimal(price1CumulativeLast);
     const price = this.getPrice(
-      reserve0,
-      reserve1,
+      this.toDecimal(reserves._reserve0),
+      this.toDecimal(reserves._reserve1),
       token0Info.decimals,
       token1Info.decimals
     );
+    // const price1 = this.getPrice(
+    //   this.toDecimal(reserves._reserve1),
+    //   this.toDecimal(reserves._reserve0),
+    //   token1Info.decimals,
+    //   token0Info.decimals
+    // );
     return {
       token0: token0Info,
       token1: token1Info,
@@ -124,6 +136,14 @@ export class LiquidityAPI {
     }
   }
 
+  private toTokenNumber(value: any, decimals: number) {
+    const total = new BigNumber(value._hex || value).dividedBy(
+      Number(`10e${decimals - 1}`)
+    );
+
+    return total.toString(10);
+  }
+
   toDecimal(value: any) {
     const number = new BigNumber(value._hex || value);
     return number.toString(10);
@@ -135,9 +155,15 @@ export class LiquidityAPI {
         r0,
         r1,
       },
-      1
+      Number(`10e${d0 - 1}`)
     );
-    const kd = Number(`10e${d0}`) / Number(`10e${d1}`);
-    return new BigNumber(1).dividedBy(value.times(kd).toString(10));
+    const price0 = new BigNumber(Number(`10e${d1 - 1}`))
+      .dividedBy(value)
+      .toString(10);
+
+    return {
+      price0,
+      price1: this.toTokenNumber(value, d1),
+    };
   }
 }
